@@ -7,4 +7,4 @@
 Open index.html in browser
 
 ## Live Link
-(Step 6 முடிஞ்சதும் link இங்க போடு)
+https://glittering-liger-be7a82.netlify.app/
