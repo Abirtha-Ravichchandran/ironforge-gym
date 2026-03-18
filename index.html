@@ -213,7 +213,7 @@
       font-size: .8rem; font-weight: 600;
       letter-spacing: .18em; text-transform: uppercase;
       color: var(--gold); margin-bottom: 1.5rem;
-      opacity: 0; animation: fadeUp .8s .2s forwards;
+      opacity: 1;
     }
     .hero-eyebrow::before {
       content: ''; display: inline-block;
@@ -224,7 +224,7 @@
       font-size: clamp(4rem, 10vw, 9rem);
       line-height: .95; letter-spacing: .02em;
       text-transform: uppercase;
-      opacity: 0; animation: fadeUp .8s .4s forwards;
+      opacity: 1;
     }
     .hero-h1 em {
       font-style: normal; color: var(--gold);
@@ -234,13 +234,13 @@
       margin-top: 1.5rem;
       font-size: clamp(1rem, 2vw, 1.2rem);
       color: var(--ash); max-width: 520px; line-height: 1.7;
-      opacity: 0; animation: fadeUp .8s .6s forwards;
+      opacity: 1;
     }
     .hero-actions {
       display: flex; align-items: center;
       flex-wrap: wrap; gap: 1rem;
       margin-top: 2.5rem;
-      opacity: 0; animation: fadeUp .8s .8s forwards;
+      opacity: 1;
     }
     .btn-primary {
       display: inline-flex; align-items: center; gap: .5rem;
@@ -280,7 +280,7 @@
     .hero-stats {
       position: absolute; bottom: 3rem; left: 5vw;
       display: flex; gap: 3rem; z-index: 2;
-      opacity: 0; animation: fadeUp .8s 1s forwards;
+      opacity: 1;
     }
     .hero-stat-num {
       font-family: var(--ff-display);
@@ -298,7 +298,7 @@
       align-items: center; gap: .5rem; z-index: 2;
       font-size: .7rem; letter-spacing: .12em;
       text-transform: uppercase; color: var(--smoke);
-      opacity: 0; animation: fadeIn 1s 1.2s forwards;
+      opacity: 1;
     }
     .scroll-line {
       width: 1px; height: 48px;
@@ -727,10 +727,6 @@
       to   { opacity: 1; }
     }
     .reveal {
-      opacity: 0; transform: translateY(30px);
-      transition: opacity .7s var(--ease), transform .7s var(--ease);
-    }
-    .reveal.in {
       opacity: 1; transform: translateY(0);
     }
 
@@ -783,8 +779,8 @@
     <div class="hero-grid"></div>
     <div class="hero-number">01</div>
     <div class="hero-content">
-      <div class="hero-logo-img reveal" style="margin-bottom:1.5rem;">
-        <img src="bodybuilding-emblem-and-gym-logo-design-template-free-vector.jpg" alt="Fitness Sports Center" style="height:120px;width:auto;filter:drop-shadow(0 4px 20px rgba(212,168,67,.4));"/>
+      <div style="margin-bottom:1.5rem;">
+        <img src="logo.jpg" alt="Fitness Sports Center" style="height:110px;width:auto;filter:drop-shadow(0 4px 20px rgba(212,168,67,.4));"/>
       </div>
       <p class="hero-eyebrow">Est. 2023 · Premium Fitness</p>
       <h1 class="hero-h1">
