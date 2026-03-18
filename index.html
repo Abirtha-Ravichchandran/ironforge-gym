@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IronForge Gym — Forge Your Limits</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── RESET & TOKENS ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:   #0A0A0A;
+      --charcoal:#1A1A1A;
+      --iron:    #2C2C2C;
+      --steel:   #3E3E3E;
+      --smoke:   #6B6B6B;
+      --ash:     #ABABAB;
+      --white:   #F5F3EE;
+      --cream:   #EDE9E0;
+      --gold:    #D4A843;
+      --gold-l:  #E8C26A;
+      --red:     #C93B3B;
+      --ff-display: 'Bebas Neue', sans-serif;
+      --ff-body:    'DM Sans', sans-serif;
+      --nav-h: 72px;
+      --ease: cubic-bezier(.4,0,.2,1);
+      --tr: .3s var(--ease);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--ff-body);
+      background: var(--black);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ─── DARK / LIGHT TOGGLE ─────────────────────────── */
+    body.light {
+      --black:   #F5F3EE;
+      --charcoal:#EDEBE5;
+      --iron:    #E0DDD6;
+      --steel:   #BEBBB3;
+      --smoke:   #7A7770;
+      --ash:     #4A4845;
+      --white:   #1A1A1A;
+      --cream:   #111111;
+    }
+
+    /* ─── SCROLLBAR ───────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+    /* ─── CURSOR ──────────────────────────────────────── */
+    .cursor {
+      position: fixed; width: 12px; height: 12px;
+      background: var(--gold); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform .1s, width .2s, height .2s, background .2s;
+      mix-blend-mode: difference;
+    }
+    .cursor.big { width: 40px; height: 40px; background: rgba(212,168,67,.35); }
+
+    /* ─── GRAIN OVERLAY ───────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: .03;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ─── NAV ─────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      height: var(--nav-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5vw;
+      transition: background var(--tr), backdrop-filter var(--tr);
+    }
+    nav.scrolled {
+      background: rgba(10,10,10,.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(212,168,67,.15);
+    }
+    .nav-logo {
+      font-family: var(--ff-display);
+      font-size: 2rem; letter-spacing: .05em;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--white); }
+    .nav-links {
+      display: flex; align-items: center; gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: .875rem; font-weight: 500; letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ash);
+      text-decoration: none;
+      position: relative;
+      transition: color var(--tr);
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0; right: 100%;
+      height: 1px; background: var(--gold);
+      transition: right var(--tr);
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a:hover::after { right: 0; }
+    .nav-cta {
+      padding: .55rem 1.4rem;
+      background: var(--gold);
+      color: var(--black) !important;
+      border-radius: 2px;
+      font-weight: 600 !important;
+      letter-spacing: .06em;
+      transition: background var(--tr), transform var(--tr) !important;
+    }
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover { background: var(--gold-l) !important; transform: translateY(-1px); }
+    .theme-btn {
+      background: none; border: 1px solid var(--steel);
+      color: var(--ash); width: 36px; height: 36px;
+      border-radius: 50%; cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color var(--tr), color var(--tr);
+    }
+    .theme-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Mobile menu */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; background: none; border: none; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--white); border-radius: 1px;
+      transition: transform var(--tr), opacity var(--tr);
+    }
+    .mobile-menu {
+      display: none; position: fixed;
+      top: var(--nav-h); left: 0; right: 0;
+      background: rgba(10,10,10,.97);
+      backdrop-filter: blur(20px);
+      padding: 2rem 5vw; z-index: 499;
+      border-bottom: 1px solid rgba(212,168,67,.2);
+      transform: translateY(-20px); opacity: 0;
+      transition: transform var(--tr), opacity var(--tr);
+    }
+    .mobile-menu.open { transform: translateY(0); opacity: 1; }
+    .mobile-menu a {
+      display: block; padding: .75rem 0;
+      font-size: 1.5rem; font-family: var(--ff-display);
+      letter-spacing: .08em; color: var(--white);
+      text-decoration: none; border-bottom: 1px solid var(--iron);
+      transition: color var(--tr), padding var(--tr);
+    }
+    .mobile-menu a:hover { color: var(--gold); padding-left: .75rem; }
+
+    @media (max-width: 768px) {
+      .nav-links, .theme-btn { display: none; }
+      .hamburger { display: flex; }
+      .mobile-menu { display: block; pointer-events: none; }
+      .mobile-menu.open { pointer-events: auto; }
+    }
+
+    /* ─── HERO ────────────────────────────────────────── */
+    #hero {
+      position: relative;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 60% 40%, rgba(212,168,67,.08) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 80% at 10% 80%, rgba(201,59,59,.06) 0%, transparent 60%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(212,168,67,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,168,67,.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+    .hero-number {
+      position: absolute; right: 5vw; top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--ff-display);
+      font-size: clamp(12rem, 20vw, 22rem);
+      color: rgba(212,168,67,.04);
+      line-height: 1; user-select: none;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: calc(var(--nav-h) + 2rem) 5vw 6rem;
+      max-width: 900px;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: .6rem;
+      font-size: .8rem; font-weight: 600;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp .8s .2s forwards;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: inline-block;
+      width: 28px; height: 1px; background: var(--gold);
+    }
+    .hero-h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(4rem, 10vw, 9rem);
+      line-height: .95; letter-spacing: .02em;
+      text-transform: uppercase;
+      opacity: 0; animation: fadeUp .8s .4s forwards;
+    }
+    .hero-h1 em {
+      font-style: normal; color: var(--gold);
+      display: block;
+    }
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--ash); max-width: 520px; line-height: 1.7;
+      opacity: 0; animation: fadeUp .8s .6s forwards;
+    }
+    .hero-actions {
+      display: flex; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+      margin-top: 2.5rem;
+      opacity: 0; animation: fadeUp .8s .8s forwards;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .9rem 2.2rem;
+      background: var(--gold);
+      color: var(--black);
+      font-family: var(--ff-body);
+      font-size: .95rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      text-decoration: none;
+      border: none; cursor: pointer;
+      border-radius: 2px;
+      transition: background var(--tr), transform var(--tr), box-shadow var(--tr);
+    }
+    .btn-primary:hover {
+      background: var(--gold-l);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(212,168,67,.3);
+    }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .9rem 2.2rem;
+      background: transparent;
+      color: var(--white);
+      font-family: var(--ff-body);
+      font-size: .95rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,.25);
+      cursor: pointer; border-radius: 2px;
+      transition: border-color var(--tr), color var(--tr), transform var(--tr);
+    }
+    .btn-outline:hover {
+      border-color: var(--gold); color: var(--gold);
+      transform: translateY(-2px);
+    }
+    .hero-stats {
+      position: absolute; bottom: 3rem; left: 5vw;
+      display: flex; gap: 3rem; z-index: 2;
+      opacity: 0; animation: fadeUp .8s 1s forwards;
+    }
+    .hero-stat-num {
+      font-family: var(--ff-display);
+      font-size: 2.2rem; color: var(--gold);
+      line-height: 1;
+    }
+    .hero-stat-label {
+      font-size: .75rem; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--smoke);
+      margin-top: .2rem;
+    }
+    .hero-scroll {
+      position: absolute; bottom: 3rem; right: 5vw;
+      display: flex; flex-direction: column;
+      align-items: center; gap: .5rem; z-index: 2;
+      font-size: .7rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--smoke);
+      opacity: 0; animation: fadeIn 1s 1.2s forwards;
+    }
+    .scroll-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(var(--gold), transparent);
+      animation: scrollPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%,100% { transform: scaleY(1); opacity: .6; }
+      50% { transform: scaleY(.5); opacity: 1; }
+    }
+
+    /* ─── SECTION SHARED ──────────────────────────────── */
+    section { padding: 7rem 5vw; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: .6rem;
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1rem;
+    }
+    .section-label::before {
+      content: ''; display: inline-block;
+      width: 20px; height: 1px; background: var(--gold);
+    }
+    .section-title {
+      font-family: var(--ff-display);
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      line-height: 1; text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+    .section-title span { color: var(--gold); }
+    .divider-line {
+      width: 60px; height: 2px; background: var(--gold);
+      margin: 1.5rem 0;
+    }
+
+    /* ─── ABOUT ───────────────────────────────────────── */
+    #about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      background: var(--charcoal);
+      position: relative; overflow: hidden;
+    }
+    #about::before {
+      content: 'FORGE';
+      position: absolute; right: -2rem; bottom: -3rem;
+      font-family: var(--ff-display);
+      font-size: 14rem; color: rgba(212,168,67,.03);
+      line-height: 1; pointer-events: none; user-select: none;
+    }
+    .about-visual {
+      position: relative; height: 480px;
+    }
+    .about-img-main {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--iron) 0%, var(--steel) 50%, var(--iron) 100%);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .about-img-main svg { width: 100%; height: 100%; }
+    .about-badge {
+      position: absolute; bottom: -1.5rem; right: -1.5rem;
+      width: 130px; height: 130px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: var(--black);
+      box-shadow: 0 20px 60px rgba(212,168,67,.4);
+    }
+    .about-badge-num {
+      font-family: var(--ff-display);
+      font-size: 2.8rem; line-height: 1;
+    }
+    .about-badge-txt {
+      font-size: .65rem; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase;
+      text-align: center; line-height: 1.3;
+    }
+    .about-body p {
+      color: var(--ash); line-height: 1.8;
+      margin-bottom: 1rem; font-size: 1rem;
+    }
+    .about-pills {
+      display: flex; flex-wrap: wrap; gap: .6rem;
+      margin-top: 1.5rem;
+    }
+    .pill {
+      padding: .4rem 1rem;
+      border: 1px solid rgba(212,168,67,.3);
+      border-radius: 999px;
+      font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--gold); font-weight: 500;
+      transition: background var(--tr), color var(--tr);
+    }
+    .pill:hover {
+      background: var(--gold); color: var(--black);
+    }
+
+    @media (max-width: 900px) {
+      #about { grid-template-columns: 1fr; padding: 5rem 5vw; }
+      .about-visual { height: 300px; }
+    }
+
+    /* ─── SERVICES / FEATURES ─────────────────────────── */
+    #services { background: var(--black); }
+    .services-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; flex-wrap: wrap; gap: 2rem;
+      margin-bottom: 4rem;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5px;
+      background: var(--iron);
+      border: 1.5px solid var(--iron);
+    }
+    .service-card {
+      background: var(--black);
+      padding: 2.5rem;
+      position: relative; overflow: hidden;
+      cursor: default;
+      transition: background var(--tr);
+    }
+    .service-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(212,168,67,.06), transparent);
+      opacity: 0; transition: opacity var(--tr);
+    }
+    .service-card:hover { background: var(--charcoal); }
+    .service-card:hover::after { opacity: 1; }
+    .service-card:hover .service-icon { color: var(--gold); transform: scale(1.1); }
+    .service-icon {
+      font-size: 2.2rem; margin-bottom: 1.2rem;
+      transition: color var(--tr), transform var(--tr);
+      display: block; line-height: 1;
+    }
+    .service-title {
+      font-family: var(--ff-display);
+      font-size: 1.6rem; letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-bottom: .6rem;
+    }
+    .service-desc {
+      font-size: .9rem; color: var(--smoke); line-height: 1.7;
+    }
+    .service-num {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      font-family: var(--ff-display);
+      font-size: 1rem; color: var(--iron);
+      letter-spacing: .1em;
+    }
+
+    /* ─── TRAINERS ────────────────────────────────────── */
+    #trainers { background: var(--charcoal); }
+    .trainers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 2rem; margin-top: 4rem;
+    }
+    .trainer-card {
+      background: var(--iron);
+      border-radius: 4px; overflow: hidden;
+      transition: transform var(--tr), box-shadow var(--tr);
+    }
+    .trainer-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+    .trainer-img {
+      height: 260px;
+      background: linear-gradient(170deg, var(--steel) 0%, var(--charcoal) 100%);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 1rem; position: relative; overflow: hidden;
+    }
+    .trainer-img::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
+      background: linear-gradient(transparent, rgba(0,0,0,.6));
+    }
+    .trainer-avatar {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: var(--smoke);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--ff-display); font-size: 2.5rem; color: var(--gold);
+      border: 3px solid rgba(212,168,67,.4);
+      position: relative; z-index: 1;
+    }
+    .trainer-info { padding: 1.2rem 1.5rem 1.5rem; }
+    .trainer-name {
+      font-family: var(--ff-display);
+      font-size: 1.4rem; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .trainer-role {
+      font-size: .8rem; color: var(--gold);
+      letter-spacing: .1em; text-transform: uppercase;
+      margin-top: .2rem; margin-bottom: .8rem;
+    }
+    .trainer-bio {
+      font-size: .875rem; color: var(--smoke); line-height: 1.6;
+    }
+    .trainer-tags {
+      display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem;
+    }
+    .trainer-tag {
+      font-size: .7rem; padding: .2rem .7rem;
+      background: rgba(212,168,67,.1);
+      border: 1px solid rgba(212,168,67,.2);
+      border-radius: 2px; color: var(--ash);
+      letter-spacing: .06em;
+    }
+
+    /* ─── PLANS ───────────────────────────────────────── */
+    #plans { background: var(--black); }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 4rem;
+    }
+    .plan-card {
+      background: var(--charcoal);
+      border: 1px solid var(--iron);
+      border-radius: 4px; padding: 2.5rem 2rem;
+      position: relative; overflow: hidden;
+      transition: transform var(--tr), border-color var(--tr), box-shadow var(--tr);
+    }
+    .plan-card.featured {
+      border-color: var(--gold);
+      background: linear-gradient(160deg, rgba(212,168,67,.07) 0%, var(--charcoal) 60%);
+    }
+    .plan-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 50px rgba(0,0,0,.35);
+    }
+    .plan-card.featured:hover {
+      box-shadow: 0 16px 50px rgba(212,168,67,.2);
+    }
+    .plan-badge {
+      display: inline-block; padding: .3rem .9rem;
+      background: var(--gold); color: var(--black);
+      font-size: .7rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      border-radius: 999px; margin-bottom: 1.2rem;
+    }
+    .plan-name {
+      font-family: var(--ff-display);
+      font-size: 1.8rem; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .plan-price {
+      margin-top: 1rem; margin-bottom: 1.5rem;
+      display: flex; align-items: flex-end; gap: .3rem;
+    }
+    .plan-currency {
+      font-size: 1.1rem; font-weight: 600; color: var(--gold);
+      padding-bottom: .5rem;
+    }
+    .plan-amount {
+      font-family: var(--ff-display);
+      font-size: 3.5rem; line-height: 1; color: var(--gold);
+    }
+    .plan-period {
+      font-size: .85rem; color: var(--smoke); padding-bottom: .6rem;
+    }
+    .plan-features {
+      list-style: none; margin-bottom: 2rem;
+    }
+    .plan-features li {
+      display: flex; align-items: center; gap: .6rem;
+      font-size: .9rem; color: var(--ash);
+      padding: .5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .plan-features li::before {
+      content: '✓';
+      color: var(--gold); font-size: .8rem;
+      flex-shrink: 0;
+    }
+    .plan-features li.na {
+      opacity: .4;
+    }
+    .plan-features li.na::before { content: '—'; color: var(--smoke); }
+
+    /* ─── CONTACT ─────────────────────────────────────── */
+    #contact {
+      background: var(--charcoal);
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 5rem; align-items: start;
+    }
+    .contact-info-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .contact-icon {
+      width: 44px; height: 44px; border-radius: 2px;
+      background: rgba(212,168,67,.1);
+      border: 1px solid rgba(212,168,67,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+      color: var(--gold);
+    }
+    .contact-info-item h4 {
+      font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--smoke); margin-bottom: .3rem;
+    }
+    .contact-info-item p { font-size: .95rem; color: var(--ash); }
+
+    /* Form */
+    .form-group { margin-bottom: 1.2rem; }
+    label {
+      display: block;
+      font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--smoke); margin-bottom: .5rem;
+    }
+    input[type=text], input[type=email], textarea {
+      width: 100%;
+      background: var(--iron);
+      border: 1px solid var(--steel);
+      color: var(--white);
+      font-family: var(--ff-body); font-size: .95rem;
+      padding: .9rem 1.1rem;
+      border-radius: 2px;
+      outline: none;
+      transition: border-color var(--tr), background var(--tr);
+    }
+    input:focus, textarea:focus {
+      border-color: var(--gold);
+      background: var(--charcoal);
+    }
+    input.error, textarea.error { border-color: var(--red); }
+    .field-error {
+      font-size: .78rem; color: var(--red);
+      margin-top: .3rem; display: none;
+    }
+    .field-error.show { display: block; }
+    textarea { resize: vertical; min-height: 120px; }
+    .form-submit {
+      width: 100%; padding: 1rem;
+      font-size: 1rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+    .form-success {
+      display: none;
+      text-align: center; padding: 3rem 2rem;
+    }
+    .form-success .success-icon {
+      font-size: 3rem; margin-bottom: 1rem;
+    }
+    .form-success h3 {
+      font-family: var(--ff-display);
+      font-size: 2rem; text-transform: uppercase;
+      color: var(--gold); margin-bottom: .6rem;
+    }
+    .form-success p { color: var(--ash); }
+
+    @media (max-width: 900px) {
+      #contact { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 5vw; }
+    }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--iron);
+      padding: 4rem 5vw 2rem;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem; margin-bottom: 3rem;
+    }
+    .footer-brand p {
+      font-size: .9rem; color: var(--smoke);
+      line-height: 1.7; margin-top: .8rem;
+      max-width: 260px;
+    }
+    .footer-col h5 {
+      font-size: .75rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--ash);
+      margin-bottom: 1rem;
+    }
+    .footer-col a {
+      display: block; font-size: .875rem;
+      color: var(--smoke); text-decoration: none;
+      margin-bottom: .5rem;
+      transition: color var(--tr), padding var(--tr);
+    }
+    .footer-col a:hover { color: var(--gold); padding-left: .4rem; }
+    .footer-bottom {
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 1rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,.06);
+      font-size: .8rem; color: var(--smoke);
+    }
+    .social-links { display: flex; gap: .8rem; }
+    .social-link {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--iron);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--smoke); font-size: .9rem; text-decoration: none;
+      transition: border-color var(--tr), color var(--tr), background var(--tr);
+    }
+    .social-link:hover {
+      border-color: var(--gold); color: var(--gold);
+      background: rgba(212,168,67,.1);
+    }
+
+    @media (max-width: 768px) {
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .footer-top { grid-template-columns: 1fr; }
+    }
+
+    /* ─── ANIMATIONS ──────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity .7s var(--ease), transform .7s var(--ease);
+    }
+    .reveal.in {
+      opacity: 1; transform: translateY(0);
+    }
+
+    /* ─── BACK TO TOP ─────────────────────────────────── */
+    #back-top {
+      position: fixed; bottom: 2rem; right: 2rem;
+      width: 48px; height: 48px;
+      background: var(--gold); color: var(--black);
+      border: none; border-radius: 2px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; z-index: 400;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity var(--tr), transform var(--tr), background var(--tr);
+    }
+    #back-top.show { opacity: 1; transform: translateY(0); }
+    #back-top:hover { background: var(--gold-l); }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor" id="cursor"></div>
+
+  <!-- ══ NAV ══════════════════════════════════════════ -->
+  <nav id="navbar">
+    <a href="#hero" class="nav-logo">Iron<span>Forge</span></a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#trainers">Trainers</a></li>
+      <li><a href="#plans">Plans</a></li>
+      <li><a href="#contact" class="nav-cta">Join Now</a></li>
+    </ul>
+    <button class="theme-btn" id="theme-toggle" title="Toggle theme">☀</button>
+    <button class="hamburger" id="ham" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="mobile-menu" id="mob-menu">
+    <a href="#about"    onclick="closeMob()">About</a>
+    <a href="#services" onclick="closeMob()">Services</a>
+    <a href="#trainers" onclick="closeMob()">Trainers</a>
+    <a href="#plans"    onclick="closeMob()">Plans</a>
+    <a href="#contact"  onclick="closeMob()">Join Now</a>
+  </div>
+
+  <!-- ══ HERO ══════════════════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-number">01</div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Est. 2024 · Premium Fitness</p>
+      <h1 class="hero-h1">
+        Forge<br>
+        <em>Your</em>
+        Limits
+      </h1>
+      <p class="hero-sub">
+        Where iron meets ambition. IronForge is a state-of-the-art gym built for athletes, beginners, and everyone who dares to push further.
+      </p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">Start Your Journey →</a>
+        <a href="#services" class="btn-outline">Explore Services</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">12K+</div>
+        <div class="hero-stat-label">Active Members</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">40+</div>
+        <div class="hero-stat-label">Expert Trainers</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">98%</div>
+        <div class="hero-stat-label">Satisfaction Rate</div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
+
+  <!-- ══ ABOUT ══════════════════════════════════════════ -->
+  <section id="about">
+    <div class="about-visual reveal">
+      <div class="about-img-main">
+        <!-- Gym interior illustration -->
+        <svg viewBox="0 0 600 480" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background -->
+          <rect width="600" height="480" fill="#1A1A1A"/>
+          <!-- Floor -->
+          <rect y="360" width="600" height="120" fill="#111"/>
+          <line x1="0" y1="360" x2="600" y2="360" stroke="#3E3E3E" stroke-width="2"/>
+          <!-- Wall lines for depth -->
+          <line x1="0" y1="0" x2="0" y2="360" stroke="#2C2C2C" stroke-width="1"/>
+          <line x1="100" y1="0" x2="80" y2="360" stroke="#2C2C2C" stroke-width="1" opacity=".5"/>
+          <line x1="200" y1="0" x2="180" y2="360" stroke="#2C2C2C" stroke-width="1" opacity=".3"/>
+          <line x1="300" y1="0" x2="300" y2="360" stroke="#2C2C2C" stroke-width="1" opacity=".2"/>
+          <!-- Gym rack -->
+          <rect x="40" y="180" width="12" height="180" fill="#3E3E3E"/>
+          <rect x="160" y="180" width="12" height="180" fill="#3E3E3E"/>
+          <rect x="40" y="200" width="132" height="10" fill="#2C2C2C"/>
+          <rect x="40" y="240" width="132" height="10" fill="#2C2C2C"/>
+          <rect x="40" y="280" width="132" height="10" fill="#2C2C2C"/>
+          <!-- Weights on rack -->
+          <rect x="52" y="196" width="24" height="18" rx="2" fill="#D4A843" opacity=".7"/>
+          <rect x="52" y="236" width="30" height="18" rx="2" fill="#D4A843" opacity=".6"/>
+          <rect x="52" y="276" width="20" height="18" rx="2" fill="#D4A843" opacity=".5"/>
+          <!-- Barbell -->
+          <rect x="180" y="250" width="220" height="10" rx="5" fill="#6B6B6B"/>
+          <rect x="178" y="242" width="28" height="26" rx="3" fill="#3E3E3E"/>
+          <rect x="178" y="246" width="20" height="18" rx="2" fill="#D4A843" opacity=".8"/>
+          <rect x="394" y="242" width="28" height="26" rx="3" fill="#3E3E3E"/>
+          <rect x="402" y="246" width="20" height="18" rx="2" fill="#D4A843" opacity=".8"/>
+          <!-- Machine silhouette -->
+          <rect x="440" y="120" width="120" height="240" rx="6" fill="#2C2C2C" stroke="#3E3E3E" stroke-width="1"/>
+          <rect x="460" y="140" width="80" height="50" rx="4" fill="#3E3E3E"/>
+          <circle cx="500" cy="165" r="20" fill="#1A1A1A" stroke="#D4A843" stroke-width="1.5"/>
+          <rect x="488" y="205" width="24" height="100" rx="2" fill="#3E3E3E"/>
+          <rect x="480" y="280" width="40" height="12" rx="2" fill="#D4A843" opacity=".4"/>
+          <!-- Light beams -->
+          <defs>
+            <radialGradient id="lgt1" cx="50%" cy="0%" r="100%">
+              <stop offset="0%" stop-color="#D4A843" stop-opacity=".15"/>
+              <stop offset="100%" stop-color="#D4A843" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="lgt2" cx="50%" cy="0%" r="100%">
+              <stop offset="0%" stop-color="#fff" stop-opacity=".05"/>
+              <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="300" cy="0" rx="200" ry="300" fill="url(#lgt1)"/>
+          <ellipse cx="150" cy="0" rx="80" ry="200" fill="url(#lgt2)"/>
+          <!-- Logo watermark -->
+          <text x="300" y="330" font-family="sans-serif" font-size="80" font-weight="900" fill="#D4A843" opacity=".06" text-anchor="middle" letter-spacing="8">IF</text>
+        </svg>
+      </div>
+      <div class="about-badge">
+        <div class="about-badge-num">10</div>
+        <div class="about-badge-txt">Years of<br>Excellence</div>
+      </div>
+    </div>
+    <div class="about-body">
+      <p class="section-label reveal">Our Story</p>
+      <h2 class="section-title reveal">Built for <span>champions</span></h2>
+      <div class="divider-line reveal"></div>
+      <p class="reveal">IronForge was born from a simple belief: every person deserves a world-class fitness experience. Our facility blends cutting-edge equipment, expert guidance, and a relentless community spirit to help you achieve results you never thought possible.</p>
+      <p class="reveal">From powerlifting platforms to cardio studios, yoga sanctuaries to recovery lounges — every corner of IronForge is designed to make you better.</p>
+      <div class="about-pills reveal">
+        <span class="pill">Olympic Lifting</span>
+        <span class="pill">CrossFit</span>
+        <span class="pill">HIIT</span>
+        <span class="pill">Yoga</span>
+        <span class="pill">Recovery</span>
+        <span class="pill">Nutrition</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SERVICES ══════════════════════════════════════ -->
+  <section id="services">
+    <div class="services-header">
+      <div>
+        <p class="section-label reveal">What We Offer</p>
+        <h2 class="section-title reveal">Our <span>Services</span></h2>
+      </div>
+      <p class="reveal" style="max-width:360px;color:var(--smoke);line-height:1.7;font-size:.95rem;">
+        Everything you need to reach your peak — under one roof, on your schedule.
+      </p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <span class="service-icon">🏋️</span>
+        <div class="service-num">01</div>
+        <h3 class="service-title">Strength Training</h3>
+        <p class="service-desc">State-of-the-art free weights, power racks, and resistance machines to build raw power and lean muscle.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">🔥</span>
+        <div class="service-num">02</div>
+        <h3 class="service-title">HIIT & Cardio</h3>
+        <p class="service-desc">High-intensity interval training classes that torch calories and build cardiovascular endurance in 45 minutes.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">🧘</span>
+        <div class="service-num">03</div>
+        <h3 class="service-title">Yoga & Mindfulness</h3>
+        <p class="service-desc">Restore flexibility, reduce stress, and cultivate mental clarity with daily classes for all levels.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">🥊</span>
+        <div class="service-num">04</div>
+        <h3 class="service-title">Boxing & MMA</h3>
+        <p class="service-desc">Train like a fighter. Develop power, coordination, and discipline in our dedicated combat sports studio.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">🏃</span>
+        <div class="service-num">05</div>
+        <h3 class="service-title">Personal Training</h3>
+        <p class="service-desc">One-on-one sessions with certified coaches who craft a program built entirely around your unique goals.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">🍎</span>
+        <div class="service-num">06</div>
+        <h3 class="service-title">Nutrition Coaching</h3>
+        <p class="service-desc">Fuel your performance with personalised meal plans and expert nutritional guidance from certified dietitians.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TRAINERS ═══════════════════════════════════════ -->
+  <section id="trainers">
+    <p class="section-label reveal">The Experts</p>
+    <h2 class="section-title reveal">Meet Our <span>Trainers</span></h2>
+    <div class="divider-line reveal"></div>
+    <div class="trainers-grid">
+      <div class="trainer-card reveal">
+        <div class="trainer-img">
+          <div class="trainer-avatar">MK</div>
+        </div>
+        <div class="trainer-info">
+          <h3 class="trainer-name">Marcus King</h3>
+          <p class="trainer-role">Head Strength Coach</p>
+          <p class="trainer-bio">Former national powerlifter with 12+ years coaching athletes from beginners to competitors.</p>
+          <div class="trainer-tags">
+            <span class="trainer-tag">Powerlifting</span>
+            <span class="trainer-tag">Hypertrophy</span>
+            <span class="trainer-tag">Sports Perf.</span>
+          </div>
+        </div>
+      </div>
+      <div class="trainer-card reveal">
+        <div class="trainer-img">
+          <div class="trainer-avatar">SL</div>
+        </div>
+        <div class="trainer-info">
+          <h3 class="trainer-name">Sofia Lee</h3>
+          <p class="trainer-role">HIIT & Cardio Specialist</p>
+          <p class="trainer-bio">Certified NSCA coach and marathon runner. Her sessions are equal parts brutal and addictive.</p>
+          <div class="trainer-tags">
+            <span class="trainer-tag">HIIT</span>
+            <span class="trainer-tag">Endurance</span>
+            <span class="trainer-tag">Weight Loss</span>
+          </div>
+        </div>
+      </div>
+      <div class="trainer-card reveal">
+        <div class="trainer-img">
+          <div class="trainer-avatar">AR</div>
+        </div>
+        <div class="trainer-info">
+          <h3 class="trainer-name">Aiden Ross</h3>
+          <p class="trainer-role">Combat Sports Coach</p>
+          <p class="trainer-bio">Pro MMA background. Trains everyone from novices to ring-ready fighters with precision and safety.</p>
+          <div class="trainer-tags">
+            <span class="trainer-tag">Boxing</span>
+            <span class="trainer-tag">MMA</span>
+            <span class="trainer-tag">Conditioning</span>
+          </div>
+        </div>
+      </div>
+      <div class="trainer-card reveal">
+        <div class="trainer-img">
+          <div class="trainer-avatar">NP</div>
+        </div>
+        <div class="trainer-info">
+          <h3 class="trainer-name">Nadia Patel</h3>
+          <p class="trainer-role">Yoga & Recovery</p>
+          <p class="trainer-bio">500-hr RYT certified yoga instructor. Helps athletes unlock mobility and mental resilience.</p>
+          <div class="trainer-tags">
+            <span class="trainer-tag">Yoga</span>
+            <span class="trainer-tag">Mobility</span>
+            <span class="trainer-tag">Mindfulness</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PLANS ══════════════════════════════════════════ -->
+  <section id="plans">
+    <p class="section-label reveal">Membership</p>
+    <h2 class="section-title reveal">Choose Your <span>Plan</span></h2>
+    <div class="divider-line reveal"></div>
+    <div class="plans-grid">
+      <!-- Starter -->
+      <div class="plan-card reveal">
+        <h3 class="plan-name">Starter</h3>
+        <div class="plan-price">
+          <span class="plan-currency">$</span>
+          <span class="plan-amount">29</span>
+          <span class="plan-period">/month</span>
+        </div>
+        <ul class="plan-features">
+          <li>Gym floor access</li>
+          <li>Locker & showers</li>
+          <li>2 group classes/month</li>
+          <li class="na">Personal trainer sessions</li>
+          <li class="na">Nutrition coaching</li>
+          <li class="na">Recovery suite access</li>
+        </ul>
+        <a href="#contact" class="btn-outline" style="display:block;text-align:center;padding:.8rem;">Get Started</a>
+      </div>
+      <!-- Elite (featured) -->
+      <div class="plan-card featured reveal">
+        <div class="plan-badge">Most Popular</div>
+        <h3 class="plan-name">Elite</h3>
+        <div class="plan-price">
+          <span class="plan-currency">$</span>
+          <span class="plan-amount">69</span>
+          <span class="plan-period">/month</span>
+        </div>
+        <ul class="plan-features">
+          <li>Unlimited gym access</li>
+          <li>Locker & showers</li>
+          <li>Unlimited group classes</li>
+          <li>2 PT sessions/month</li>
+          <li>Nutrition coaching</li>
+          <li class="na">Recovery suite access</li>
+        </ul>
+        <a href="#contact" class="btn-primary" style="display:block;text-align:center;padding:.8rem;">Get Started</a>
+      </div>
+      <!-- Champion -->
+      <div class="plan-card reveal">
+        <h3 class="plan-name">Champion</h3>
+        <div class="plan-price">
+          <span class="plan-currency">$</span>
+          <span class="plan-amount">119</span>
+          <span class="plan-period">/month</span>
+        </div>
+        <ul class="plan-features">
+          <li>Unlimited gym access</li>
+          <li>Locker & showers</li>
+          <li>Unlimited group classes</li>
+          <li>Unlimited PT sessions</li>
+          <li>Nutrition coaching</li>
+          <li>Recovery suite access</li>
+        </ul>
+        <a href="#contact" class="btn-outline" style="display:block;text-align:center;padding:.8rem;">Get Started</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CONTACT ════════════════════════════════════════ -->
+  <section id="contact">
+    <div>
+      <p class="section-label reveal">Get In Touch</p>
+      <h2 class="section-title reveal">Start Your <span>Journey</span></h2>
+      <div class="divider-line reveal"></div>
+      <p class="reveal" style="color:var(--smoke);line-height:1.7;margin-bottom:2.5rem;max-width:400px;font-size:.95rem;">
+        Ready to transform? Drop us a message and one of our team will reach out within 24 hours to set you up.
+      </p>
+      <div class="contact-info-item reveal">
+        <div class="contact-icon">📍</div>
+        <div>
+          <h4>Location</h4>
+          <p>42 Forge Street, Downtown Fitness District</p>
+        </div>
+      </div>
+      <div class="contact-info-item reveal">
+        <div class="contact-icon">📞</div>
+        <div>
+          <h4>Phone</h4>
+          <p>+1 (555) 867-5309</p>
+        </div>
+      </div>
+      <div class="contact-info-item reveal">
+        <div class="contact-icon">✉️</div>
+        <div>
+          <h4>Email</h4>
+          <p>hello@ironforge.gym</p>
+        </div>
+      </div>
+      <div class="contact-info-item reveal">
+        <div class="contact-icon">🕐</div>
+        <div>
+          <h4>Hours</h4>
+          <p>Mon–Fri 5am–11pm · Sat–Sun 6am–9pm</p>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div id="contact-form-wrap" style="background:var(--iron);border-radius:4px;padding:2.5rem;">
+        <form id="contact-form" novalidate>
+          <div class="form-group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" placeholder="John Smith" autocomplete="name"/>
+            <p class="field-error" id="err-name">Please enter your name.</p>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"/>
+            <p class="field-error" id="err-email">Please enter a valid email address.</p>
+          </div>
+          <div class="form-group">
+            <label for="message">Your Message</label>
+            <textarea id="message" name="message" placeholder="Tell us about your fitness goals…"></textarea>
+            <p class="field-error" id="err-message">Please enter a message (at least 10 characters).</p>
+          </div>
+          <button type="submit" class="btn-primary form-submit">Send Message →</button>
+        </form>
+        <div class="form-success" id="form-success">
+          <div class="success-icon">🎯</div>
+          <h3>Message Sent!</h3>
+          <p>Thank you for reaching out. Our team will contact you within 24 hours to begin your fitness journey.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ══════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#hero" class="nav-logo" style="font-size:1.8rem;">Iron<span>Forge</span></a>
+        <p>Building stronger bodies and resilient minds since 2014. Your journey starts here.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Navigate</h5>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#trainers">Trainers</a>
+        <a href="#plans">Membership</a>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <a href="#services">Strength Training</a>
+        <a href="#services">HIIT & Cardio</a>
+        <a href="#services">Yoga</a>
+        <a href="#services">Nutrition</a>
+      </div>
+      <div class="footer-col">
+        <h5>Connect</h5>
+        <a href="#">Instagram</a>
+        <a href="#">Twitter / X</a>
+        <a href="#">Facebook</a>
+        <a href="#">YouTube</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 IronForge Gym. All rights reserved.</p>
+      <div class="social-links">
+        <a href="#" class="social-link" aria-label="Instagram">IG</a>
+        <a href="#" class="social-link" aria-label="Twitter">𝕏</a>
+        <a href="#" class="social-link" aria-label="Facebook">FB</a>
+        <a href="#" class="social-link" aria-label="YouTube">YT</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top -->
+  <button id="back-top" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <script>
+    /* ── Cursor ── */
+    const cur = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cur.style.left = e.clientX + 'px';
+      cur.style.top  = e.clientY + 'px';
+    });
+    document.querySelectorAll('a,button,.service-card,.plan-card,.trainer-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cur.classList.add('big'));
+      el.addEventListener('mouseleave', () => cur.classList.remove('big'));
+    });
+
+    /* ── Navbar scroll ── */
+    const nav = document.getElementById('navbar');
+    const btt = document.getElementById('back-top');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+      btt.classList.toggle('show', window.scrollY > 400);
+    }, { passive: true });
+
+    /* ── Mobile menu ── */
+    const ham  = document.getElementById('ham');
+    const mob  = document.getElementById('mob-menu');
+    let menuOpen = false;
+    function closeMob() {
+      menuOpen = false;
+      mob.classList.remove('open');
+      mob.style.pointerEvents = 'none';
+    }
+    ham.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      mob.classList.toggle('open', menuOpen);
+      mob.style.pointerEvents = menuOpen ? 'auto' : 'none';
+    });
+
+    /* ── Dark/Light toggle ── */
+    const themeBtn = document.getElementById('theme-toggle');
+    let light = false;
+    themeBtn.addEventListener('click', () => {
+      light = !light;
+      document.body.classList.toggle('light', light);
+      themeBtn.textContent = light ? '🌙' : '☀';
+    });
+
+    /* ── Scroll reveal ── */
+    const revEls = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('in'), i * 80);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revEls.forEach(el => obs.observe(el));
+
+    /* ── Contact form validation ── */
+    const form    = document.getElementById('contact-form');
+    const success = document.getElementById('form-success');
+
+    function showError(id, fieldId) {
+      document.getElementById(id).classList.add('show');
+      document.getElementById(fieldId).classList.add('error');
+    }
+    function clearErrors() {
+      document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+      document.querySelectorAll('input,textarea').forEach(e => e.classList.remove('error'));
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      clearErrors();
+
+      const name    = document.getElementById('name').value.trim();
+      const email   = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      let valid = true;
+
+      if (!name) { showError('err-name', 'name'); valid = false; }
+      if (!emailRx.test(email)) { showError('err-email', 'email'); valid = false; }
+      if (message.length < 10) { showError('err-message', 'message'); valid = false; }
+
+      if (valid) {
+        form.style.display = 'none';
+        success.style.display = 'block';
+      }
+    });
+
+    // Clear errors on input
+    ['name','email','message'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        document.getElementById('err-' + id).classList.remove('show');
+        document.getElementById(id).classList.remove('error');
+      });
+    });
+  </script>
+</body>
+</html>
